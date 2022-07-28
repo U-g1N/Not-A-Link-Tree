@@ -50,5 +50,5 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class Links(models.Model):
     link = models.URLField()
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField()
