@@ -47,3 +47,8 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+class Links(models.Model):
+    link = models.URLField()
+    user = models.ForeignKey(User)
+    date = models.DateTimeField()

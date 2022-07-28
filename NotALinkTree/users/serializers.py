@@ -1,9 +1,13 @@
 from rest_framework import serializers
-from enum import unique
-# from users.models import User
+from users.models import Links, User
 
 
-class createUserSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    name = serializers.CharField(max_length=255)
-    password = serializers.CharField(required=True)
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+
+class LinksSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Links
+        fields = "__all__"
