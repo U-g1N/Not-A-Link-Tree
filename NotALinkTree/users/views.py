@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import User
 from users.serializers import UserSerializer
 
@@ -11,7 +12,7 @@ from users.serializers import UserSerializer
 
 @api_view(['POST'])
 @permission_classes((AllowAny,))
-def create_user(request):
+def signup(request):
     serialized = UserSerializer(data=request.data)
     if serialized.is_valid():
         serialized.save()
@@ -26,16 +27,33 @@ def create_user(request):
 
 @api_view(['GET'])
 @permission_classes((AllowAny,))
-def get_user(request):
+def login(request):
     try:
-        user = User.objects.get(email=request.data.get("email"))
+        user = User.objects.get(email=request.data.get("email"), password=request.data.get("password"))
+        token = RefreshToken.for_user(user)
     except User.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     
     serializer = UserSerializer(user)
-    return Response(serializer.data)
+    return Response({
+            "refresh": str(token),
+            "access": str(token.access_token),
+            "data": serializer.data
+        })
 
     # user = User.objects.get(
     #     email=request.data.get("email"),
     # )
     # return Response({"user": user.name, "uuid": user.uuid}, status=200)
+
+
+@api_view(['GET'])
+@permission_classes((IsAuthenticated,))
+def get_profile(request):
+    user = User.objects.get(email = request.user)
+    serializer = UserSerializer(user)
+    return Response({
+            "data": serializer.data
+        })
+
+# write a viewset for user object

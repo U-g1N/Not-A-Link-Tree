@@ -1,4 +1,7 @@
 from enum import unique
+from datetime import datetime, timedelta
+from django.conf import Settings
+import jwt
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from django.db import models
 from django.utils import timezone
@@ -48,6 +51,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     def __str__(self):
         return self.email
 
+
+# Model for links
 class Links(models.Model):
     link = models.URLField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
