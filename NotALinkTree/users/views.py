@@ -66,9 +66,12 @@ class UserViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         user = User.objects.get(email = request.user)
         serializer = self.get_serializer(user)
-
         return Response(serializer.data)
 
     def retrieve(self, request, *args, **kwargs):
         raise MethodNotAllowed(
             'GET', detail='Method "GET" not allowed with lookup.')
+
+    def destroy(self, request, *args, **kwargs):
+        raise MethodNotAllowed(
+            'DELETE', detail='Method "DELETE" not allowed.')
