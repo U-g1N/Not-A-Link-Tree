@@ -2,10 +2,11 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import User
 from users.serializers import UserSerializer
+from rest_framework.exceptions import MethodNotAllowed
 
 # Create your views here.
 
@@ -57,3 +58,17 @@ def get_profile(request):
         })
 
 # write a viewset for user object
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def list(self, request, *args, **kwargs):
+        user = User.objects.get(email = request.user)
+        serializer = self.get_serializer(user)
+
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        raise MethodNotAllowed(
+            'GET', detail='Method "GET" not allowed with lookup.')
