@@ -4,8 +4,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework_simplejwt.tokens import RefreshToken
-from users.models import User
-from users.serializers import UserSerializer
+from users.models import User, Links
+from users.serializers import UserSerializer, LinksSerializer
 from rest_framework.exceptions import MethodNotAllowed
 
 # Create your views here.
@@ -65,6 +65,33 @@ class UserViewSet(viewsets.ModelViewSet):
 
     def list(self, request, *args, **kwargs):
         user = User.objects.get(email = request.user)
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+
+    def retrieve(self, request, *args, **kwargs):
+        raise MethodNotAllowed(
+            'GET', detail='Method "GET" not allowed with lookup.')
+
+    def destroy(self, request, *args, **kwargs):
+        raise MethodNotAllowed(
+            'DELETE', detail='Method "DELETE" not allowed.')
+
+@api_view(['POST'])
+@permission_classes((IsAuthenticated,))
+def uploadlink(request):
+    serialized = LinksSerializer(data=request.data)
+    if serialized.is_valid():
+        serialized.save()
+        return Response(serialized.data, status=status.HTTP_201_CREATED)
+    else:
+        return Response(serialized._errors, status=status.HTTP_400_BAD_REQUEST)
+class LinksViewSet(viewsets.ModelViewSet):
+    queryset = Links.objects.all()
+    serializer_class = LinksSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def list(self, request, *args, **kwargs):
+        user = Links.objects.get(email = request.user)
         serializer = self.get_serializer(user)
         return Response(serializer.data)
 
